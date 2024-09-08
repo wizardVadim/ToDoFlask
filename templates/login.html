@@ -1,10 +1,11 @@
 {% extends 'index.html' %}
 
-{% block title %}Вход{% endblock %}
+{% block title %}
+Вход
+{% endblock %}
 
 {% block content %}
-<h2>Вход</h2>
-<form method="post" action="/login">
+<form id="loginForm">
     <div class="form-group">
         <label for="username">Имя пользователя:</label>
         <input type="text" class="form-control" id="username" name="username" required>
@@ -13,6 +14,14 @@
         <label for="password">Пароль:</label>
         <input type="password" class="form-control" id="password" name="password" required>
     </div>
-    <button type="submit" class="btn btn-primary">Войти</button>
+    <div class="message" id="message">
+
+    </div>
+    <button type="submit" class="btn add-btn" id="btnLogin">Войти</button>
+    <a type="submit" class="btn add-btn" href="/register">Регистрация</a>
 </form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
 {% endblock %}

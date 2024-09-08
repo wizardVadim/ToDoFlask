@@ -1,0 +1,144 @@
+body {
+    background-color: #e9f7ef; /* Легкий зеленый фон */
+    font-family: 'Arial', sans-serif;
+}
+
+.title {
+    color: #27ae60; /* Темный зеленый цвет для заголовка */
+    font-weight: bold;
+    margin-bottom: 30px;
+
+    margin-top: 70px;
+}
+
+.todo-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff; /* Белый фон для контейнера списка */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-inline input {
+    flex: 1;
+}
+
+.add-btn {
+    background-color: #2ecc71; /* Сочный зеленый цвет для кнопки */
+    color: white;
+    border: none;
+}
+
+.add-btn:hover {
+    background-color: #27ae60; /* Темный зеленый цвет для кнопки при наведении */
+}
+
+.list-group-item {
+    background-color: #e9f7ef; /* Легкий зеленый цвет для задач */
+    color: #333;
+    border: none;
+    border-bottom: 1px solid #27ae60; /* Зеленая граница между задачами */
+}
+
+.delete-btn {
+    background-color: #e74c3c; /* Красный цвет для кнопки удаления */
+    color: white;
+    border: none;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b; /* Темный красный цвет при наведении */
+}
+
+#noTasks {
+    text-align: center;
+}
+
+/* Header */
+
+.header {
+    background-color: #ffffff; /* Белый фон для контейнера списка */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header__inner {
+    display: flex;
+
+    align-items: center;
+}
+
+.header__logo {
+    font-family: "Nerko One", cursive;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 50px;
+
+    width: 50%;
+    text-decoration: none;
+
+    color: #27ae60;
+}
+
+.header__logo:hover {
+    text-decoration: none;
+
+    color: #2ecc71;
+}
+
+.header__logo:visited {
+    text-decoration: none;
+}
+
+.header__navs {
+    width: 50%;
+    display: flex;
+
+    justify-content: right;
+}
+
+.header__navs__item {
+    text-decoration: none;
+    cursor: pointer;
+
+    margin-right: 40px;
+
+    font-size: 20px;
+    color: #27ae60;
+}
+
+.header__navs__item:hover {
+    text-decoration: none;
+
+    color: #2ecc71;
+}
+
+.header__navs__item:visited {
+    text-decoration: none;
+}
+
+
+/* Container */
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+
+    margin-top: 60px;
+}
+
+.container--header {
+    max-width: 1200px;
+    width: 100%;
+
+    margin-top: 0;
+
+    padding: 10px 0;
+}
+
+/* Message */
+.message {
+    color: red;
+    margin: 10px 0;
+}
+

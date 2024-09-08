@@ -3,15 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Flask App{% endblock %}</title>
+    <title>To-Do List</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nerko+One&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-5">
-        {% block content %}
-        <a href="/register">Регистрация</a>
-        <a href="/login">Вход</a>
+
+    <header class="header">
+
+        <div class="container container--header">
+
+            <div class="header__inner">
+                
+                <a class="header__logo" href="/">
+                    ToDo
+                </a>
+                    
+                <div class="header__navs">
+                    {% if is_authenticated %}
+                        <!-- Пользователь вошел в систему -->
+                        <a class="header__navs__item" id="logoutBtn">Выход</a>
+                    {% else %}
+                        <!-- Пользователь не вошел в систему -->
+                        <a href="/login" class="header__navs__item">Вход</a>
+                        <a href="/register" class="header__navs__item">Регистрация</a>
+                    {% endif %}
+                </div>
+
+                
+
+            </div>
+
+        </div> <!-- ./container -->
+
+    </header> <!-- ./header -->
+
+    <h1 class="text-center title">
+        {% block title %}
+        {{ username }}, это Ваш To-Do лист
         {% endblock %}
+    </h1>
+
+    <div class="container mt-5">
+
+        <div class="todo-container">
+            {% block content %}
+            <form id="todoForm" class="form-inline justify-content-center" method="post" action="/addDo" content="application/json">
+                <input type="text" id="taskInput" class="form-control mr-2" placeholder="Добавить задачу..." required>
+                <button type="submit" class="btn add-btn">Добавить</button>
+            </form>
+            <ul id="taskList" class="list-group mt-4">
+                {% for task in tasks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center task-item">
+                        <span>{{ task.title }}: {{ task.description }}</span>
+                        {% if task.completed %}
+                            <span class="badge badge-success">Выполнено</span>
+                        {% else %}
+                            <span class="badge badge-warning">В процессе</span>
+                        {% endif %}
+                        <button class="btn btn-sm btn-danger delete-btn">Удалить</button>
+                    </li>
+                {% else %}
+                    <!-- Если список задач пуст -->
+                    <li class="list-group-item" id="noTasks">Нет задач</li>
+                {% endfor %}
+            </ul>
+            {% endblock %}
+        </div>
     </div>
+    
+
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% endblock %}
+    <script src="{{ url_for('static', filename='js/logout.js') }}"></script>
 </body>
 </html>
