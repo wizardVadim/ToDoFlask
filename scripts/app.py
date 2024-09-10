@@ -313,7 +313,7 @@ def complete_task():
     # print(task_id + ' ' + checked + ' - Данные задачи')
 
     # Проверка наличия данных
-    if not task_id or not checked:
+    if not task_id:
         return make_response(jsonify({'message': 'Отсутствуют данные по задаче'}), 400)
 
     # Найти задачу по id

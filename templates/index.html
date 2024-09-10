@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nerko+One&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     <header class="header">
 
@@ -41,54 +41,65 @@
 
     </header> <!-- ./header -->
 
-    <h1 class="text-center title">
-        {% block title %}
-        {{ username }}, это Ваш To-Do лист
-        {% endblock %}
-    </h1>
-
-    <div class="container mt-5">
-
-        <div class="todo-container">
-            {% block content %}
-            <form id="todoForm" class="justify-content-center" method="post" action="/addDo" content="application/json">
-                <div class="d-flex align-items-center mb-2">
-                    <!-- Название задачи и кнопка "Добавить" в одной строке -->
-                    <input type="text" id="taskTitleInput" class="form-control mr-2" placeholder="Название задачи..." required>
-                    <button type="submit" class="btn add-btn">Добавить</button>
-                </div>
-                <!-- Описание задачи ниже и с большей высотой -->
-                <div>
-                    <input type="text" id="taskDescriptionInput" class="form-control mb-2" placeholder="Описание задачи..." required>
-                </div>
-            </form>
-            <ul id="taskList" class="list-group mt-4">
-                {% for task in tasks %}
-                    <li class="list-group-item task-item" id="task-{{ task.id }}">
-                        <div class="task-content">
-                            <!-- Статус выполнения -->
-                            {% if task.completed %}
-                                <input type="checkbox" class="custom-checkbox complete-task mr-2" id="checkbox-{{ task.id }}" checked>
-                            {% else %}
-                                <input type="checkbox" class="custom-checkbox complete-task mr-2" id="checkbox-{{ task.id }}">
-                            {% endif %}
-                            <!-- Название задачи -->
-                            <div class="task-title" id="taskTitle-{{ task.id }}">{{ task.title }}</div>
-                            <!-- Описание задачи -->
-                            <div class="task-description" id="taskDescription-{{ task.id }}">{{ task.description }}</div>
-                            <!-- Кнопка удаления -->
-                            <button class="btn btn-sm btn-danger delete-btn">Удалить</button>
-                        </div>
-                    </li>
-                {% else %}
-                    <!-- Если список задач пуст -->
-                    <li class="list-group-item" id="noTasks">Нет задач</li>
-                {% endfor %}
-            </ul>
-            <div id="message"></div>
+    <section class="section">
+        <h1 class="text-center title">
+            {% block title %}
+            {{ username }}, это Ваш To-Do лист
             {% endblock %}
+        </h1>
+
+        <div class="container mt-5">
+
+            <div class="todo-container">
+                {% block content %}
+                <form id="todoForm" class="justify-content-center" method="post" action="/addDo" content="application/json">
+                    <div class="d-flex align-items-center mb-2">
+                        <!-- Название задачи и кнопка "Добавить" в одной строке -->
+                        <input type="text" id="taskTitleInput" class="form-control mr-2" placeholder="Название задачи..." required>
+                        <button type="submit" class="btn add-btn">Добавить</button>
+                    </div>
+                    <!-- Описание задачи ниже и с большей высотой -->
+                    <div>
+                        <input type="text" id="taskDescriptionInput" class="form-control mb-2" placeholder="Описание задачи..." required>
+                    </div>
+                </form>
+                <ul id="taskList" class="list-group mt-4">
+                    {% for task in tasks %}
+                        <li class="list-group-item task-item" id="task-{{ task.id }}">
+                            <div class="task-content">
+                                <!-- Статус выполнения -->
+                                {% if task.completed %}
+                                    <input type="checkbox" class="custom-checkbox complete-task mr-2" id="checkbox-{{ task.id }}" checked>
+                                {% else %}
+                                    <input type="checkbox" class="custom-checkbox complete-task mr-2" id="checkbox-{{ task.id }}">
+                                {% endif %}
+                                <!-- Название задачи -->
+                                <div class="task-title" id="taskTitle-{{ task.id }}">{{ task.title }}</div>
+                                <!-- Описание задачи -->
+                                <div class="task-description" id="taskDescription-{{ task.id }}">{{ task.description }}</div>
+                                <!-- Кнопка удаления -->
+                                <button class="btn btn-sm btn-danger delete-btn">Удалить</button>
+                            </div>
+                        </li>
+                    {% else %}
+                        <!-- Если список задач пуст -->
+                        <li class="list-group-item" id="noTasks">Нет задач</li>
+                    {% endfor %}
+                </ul>
+                <div id="message"></div>
+                {% endblock %}
+            </div>
         </div>
-    </div>
+    </section>
+
+    <footer class="footer mt-auto py-3">
+
+        <div class="continer">
+
+        </div>
+
+
+    </footer>
     
 
     {% block scripts %}

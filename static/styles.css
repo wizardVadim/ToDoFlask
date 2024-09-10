@@ -1,6 +1,11 @@
 body {
     background-color: #e9f7ef; /* Легкий зеленый фон */
     font-family: 'Arial', sans-serif;
+
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Минимальная высота для заполнения окна */
+    margin: 0;
 }
 
 .title {
@@ -203,3 +208,24 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+/* Section */
+
+.section {
+    margin-bottom: 50px;
+}
+
+/* Footer */
+
+.footer {
+    background: url(/static/images/_im_5dfe9aff-832b-40b1-b55e-2122d889dd13.png);
+    max-height: 300px;
+    height: 150px;
+    border-top: 1px solid #e7e7e7; /* Пример добавления границы */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+}
