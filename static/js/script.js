@@ -1,29 +1,73 @@
 const form = document.getElementById('todoForm');
-        const taskInput = document.getElementById('taskInput');
-        const taskList = document.getElementById('taskList');
+const taskTitleInput = document.getElementById('taskTitleInput');
+const taskDescriptionInput = document.getElementById('taskDescriptionInput');
+const taskList = document.getElementById('taskList');
 
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const taskText = taskInput.value;
-            if (taskText.trim()) {
+const liTasks = document.querySelectorAll('.task-item');
+
+form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const taskTitle = taskTitleInput.value;
+    const taskDescription = taskDescriptionInput.value;
+
+    if (taskTitle.trim()) {
+        fetch('/add_task', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ // Преобразуем в строку JSON
+                'task_title': taskTitle,
+                'task_description': taskDescription
+            })
+        })
+        .then(response => {
+            return response.json().then(data => ({ status: response.status, body: data }));
+        })
+        .then(({ status, body }) => {
+            if (status === 200) {
                 const li = document.createElement('li');
-                li.className = 'list-group-item d-flex justify-content-between align-items-center task-item';
-                li.innerHTML = `<span>${taskText}</span> <button class="btn btn-sm btn-danger delete-btn">Удалить</button>`;
+                li.id = `task-${body.id}`;
+                li.className = 'list-group-item task-item';
+                li.innerHTML = `
+                    <div class="task-content">
+                        <input type="checkbox" class="custom-checkbox complete-task mr-2" id="checkbox-${body.id}">
+                        <div class="task-title" id="taskTitle-${body.id}">${taskTitle}</div>
+                        <div class="task-description" id="taskDescription-${body.id}">${taskDescription}</div>
+                        <button class="btn btn-sm btn-danger delete-btn">Удалить</button>
+                    </div>
+                `;
+
+                // Добавление задачи в список
                 taskList.appendChild(li);
-                taskInput.value = '';
+                taskTitleInput.value = '';
+                taskDescriptionInput.value = '';
 
                 // Удалить элемент "Нет задач" при добавлении новой задачи
                 const noTasksElement = document.getElementById('noTasks');
                 if (noTasksElement) {
-                    noTasksElement.remove(); // Удаляет элемент "Нет задач"
+                    noTasksElement.remove();
                 }
 
-                li.querySelector('.delete-btn').addEventListener('click', function () {
-                    li.remove();
-                    checkNoTasks();
-                })
+
+                // Добавление слушателя события для кнопки удаления
+                addEventListenerRemoveForTask(li);
+
+                // Добавление слушателя события для кнопки выполнения
+                addEventListenerCompleteForTask(li);
+
+            } else {
+                document.getElementById('message').innerText = body.message;
             }
+        })
+        .catch(error => {
+            console.error('Ошибка: ', error);
+            document.getElementById('message').innerText = 'Произошла ошибка при выполнении запроса.';
         });
+    }
+});
+
 
 function checkNoTasks() {
     if (taskList.children.length === 0) {
@@ -35,3 +79,88 @@ function checkNoTasks() {
     }
 }
 
+liTasks.forEach(task => {
+    addEventListenerRemoveForTask(task)
+});
+
+liTasks.forEach(task => {
+    addEventListenerCompleteForTask(task)
+});
+
+function addEventListenerRemoveForTask(task) {
+
+    const deleteButton = task.querySelector('.delete-btn');
+
+    // Убедимся, что кнопка существует перед добавлением слушателя
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function () {
+            const taskId = task.id.replace('task-', ''); // Получаем id задачи, убираем префикс
+
+            fetch('/remove_task', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'task_id': taskId
+                })
+            })
+            .then(response => {
+                return response.json().then(data => ({ status: response.status, body: data }));
+            })
+            .then(({ status, body }) => {
+                if (status === 200) {
+                    task.remove();
+                    checkNoTasks(); // Проверяем, есть ли еще задачи
+                } else {
+                    document.getElementById('message').innerText = body.message;
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка: ', error);
+                document.getElementById('message').innerText = 'Произошла ошибка при выполнении запроса.';
+            });
+        });
+    }
+
+}
+
+function addEventListenerCompleteForTask(task) {
+    const completeButton = task.querySelector('.complete-task');
+
+    // Убедимся, что кнопка существует перед добавлением слушателя
+    if (completeButton) {
+        completeButton.addEventListener('change', function () {
+            const taskId = task.id.replace('task-', ''); // Получаем id задачи, убираем префикс
+            const checked = this.checked;
+
+            fetch('/complete_task', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'task_id': taskId,
+                    'checked': checked
+                })
+            })
+            .then(response => response.json().then(data => ({ status: response.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200) {
+                    // Действия при успешном запросе, например, обновление интерфейса
+                    console.log('Task completion status updated successfully.');
+                } else {
+                    document.getElementById('message').innerText = body.message;
+                }
+            })
+            .catch(error => {
+                // console.error('Ошибка: ', error);
+                document.getElementById('message').innerText = 'Произошла ошибка при выполнении запроса.';
+            });
+        });
+    } else {
+        console.warn('Complete button not found for task:', task);
+    }
+}

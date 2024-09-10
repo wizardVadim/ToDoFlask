@@ -21,7 +21,7 @@ class User(db.Model):
 class Task(db.Model):
     __tablename__ = 'tasks'
     id = db.Column(db.Integer, primary_key=True) # Идентификатор задачи
-    title = db.Column(db.String(50), unique=True, nullable=False) # Заголовок (наименование) задачи
+    title = db.Column(db.String(50), unique=False, nullable=False) # Заголовок (наименование) задачи
     description = db.Column(db.String(2048), unique=False, nullable=False) # Описание задачи
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # Связь с пользователем, создавшим задачу
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)  # Время создания

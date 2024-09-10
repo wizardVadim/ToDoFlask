@@ -1,3 +1,5 @@
+from crypt import methods
+from datetime import datetime, timezone
 from flask import Flask, request, jsonify, render_template, redirect, url_for, make_response
 from flask_cors import CORS
 from models import User, db, Task
@@ -21,6 +23,7 @@ static_dir   = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static'
 secret_key   = 'adminKeyJWT'
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+CORS(app, supports_credentials=True)
 
 # Настройка строки подключения к PostgreSQL
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://' + settings.getSetting("postgres_user") + ':' + settings.getSetting("postgres_pass") +'@localhost:5432/todo_list'
@@ -98,6 +101,13 @@ def index():
     tasks_data = [{"id": task.id, "title": task.title, "description": task.description, "completed": task.completed} for
                   task in tasks]
 
+    for task in tasks:
+        print(task.id)
+        if (task.completed):
+            print('comp')
+        else:
+            print('not comp')
+
     return render_template('index.html', username=str(current_user.get('username')), is_authenticated=is_authenticated, tasks=tasks_data)
 
 
@@ -167,12 +177,12 @@ def login():
 
         # Проверка наличия данных
         if not username or not password:
-            return jsonify({'message': 'Отсутствует имя пользователя или пароль'}), 400
+            return make_response(jsonify({'message': 'Отсутствует имя пользователя или пароль'}), 400)
 
         user = User.query.filter_by(username=username).first()
 
         if not user or not check_password_hash(user.password, password):
-            return jsonify({"message": "Неправильное имя пользователя или пароль"}), 401
+            return make_response(jsonify({"message": "Неправильное имя пользователя или пароль"}), 401)
 
         # Создание JWT токена
         access_token = create_access_token(identity={'username': user.username})
@@ -194,12 +204,10 @@ def login():
 
     return render_template('login.html', is_authenticated=is_authenticated)
 
+# Маршрут для выхода (удаление cookie с токеном)
 @app.route('/logout', methods=['GET', 'POST'])
 @jwt_required(locations=['cookies'])
 def logout():
-    # Логируем состояние cookies
-    print("Кука access_token_cookie перед вызовом jwt_required:", request.cookies.get('access_token_cookie'))
-
     # Проверка, что токен действителен
     try:
         jti = get_jwt()['jti']
@@ -212,7 +220,124 @@ def logout():
     response.delete_cookie('access_token_cookie')  # Удаляем токен из cookies
     return response
 
+# Маршрут для удаления задачи
+@app.route('/remove_task', methods=['POST'])
+@jwt_required(locations=['cookies'])
+def remove_task():
+    if request.content_type == 'application/json':
+        data = request.get_json()
+    else:
+        data = request.form
 
+    task_id = data.get('task_id')
+
+    print('task_id: ' + task_id)
+
+    # Проверка наличия данных
+    if not task_id:
+        return make_response(jsonify({'message': 'Отсутствует идентификатор задачи'}), 400)
+
+    task = Task.query.filter_by(id=task_id).first()
+
+    #Проверка наличия задачи в БД
+    if not task:
+        return make_response(jsonify({'message': 'Данной задачи нет в базе данных'}), 401)
+
+    try:
+        db.session.delete(task)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return make_response(jsonify({'message': 'Произошла ошибка при удалении'}), 500)
+
+    return make_response(jsonify({'message': 'Удаление прошло успешно'}), 200)
+
+# Маршрут для добавления задачи
+@app.route('/add_task', methods=['POST'])
+@jwt_required(locations=['cookies'])
+def add_task():
+    current_user = get_jwt_identity()
+
+    if request.content_type == 'application/json':
+        data = request.get_json()
+    else:
+        data = request.form
+
+    task_title = data.get('task_title')
+    task_description = data.get('task_description')
+
+    print(task_title + ' ' + task_description + ' - Данные задачи')
+
+    # Проверка наличия данных
+    if not task_title or not task_description:
+        return make_response(jsonify({'message': 'Отсутствуют данные по задаче'}), 400)
+
+    # Найти пользователя по его имени
+    user = User.query.filter_by(username=current_user.get('username')).first()
+
+    # Проверка существовани пользователя
+    if not user:
+        return make_response(jsonify({'message': 'Не найден текущий пользователь'}), 500)
+
+    new_task = Task(user_id=user.id, title=task_title, description=task_description)
+
+    try:
+        db.session.add(new_task)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return make_response(jsonify({'message': 'Произошла ошибка при добавлении в базу данных'}), 500)
+
+    return make_response(jsonify({'message': 'Добавление прошло успешно', 'id': new_task.id}), 200)
+
+# Маршрут для выполнения задачи
+@app.route('/complete_task', methods=['POST'])
+@jwt_required(locations=['cookies'])
+def complete_task():
+
+    if request.content_type == 'application/json':
+        data = request.get_json()
+    else:
+        data = request.form
+
+    task_id = data.get('task_id')
+    checked = data.get('checked')
+
+    if checked:
+        print('checked')
+    else:
+        print('not checked')
+
+    # print(task_id + ' ' + checked + ' - Данные задачи')
+
+    # Проверка наличия данных
+    if not task_id or not checked:
+        return make_response(jsonify({'message': 'Отсутствуют данные по задаче'}), 400)
+
+    # Найти задачу по id
+    task = Task.query.filter_by(id=task_id).first()
+
+    # Проверка существовани пользователя
+    if not task:
+        return make_response(jsonify({'message': 'Не найдена задача'}), 500)
+
+    try:
+        task.completed = checked
+        if checked:
+            task.completedAt = datetime.now(timezone.utc)
+        else:
+            task.completedAt = None
+
+        db.session.commit()
+
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return make_response(jsonify({'message': 'Произошла ошибка при изменении в базе данных'}), 500)
+
+    return make_response(jsonify({'message': 'Выполнение задачи прошло успешно'}), 200)
 
 # Запуск приложения
 if __name__ == '__main__':

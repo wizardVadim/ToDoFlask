@@ -21,7 +21,7 @@ body {
 }
 
 .form-inline input {
-    flex: 1;
+    display: block;
 }
 
 .add-btn {
@@ -35,6 +35,13 @@ body {
 }
 
 .list-group-item {
+    display: block;
+
+    margin: 10px 0;
+
+    width: 100%;
+    max-width: inherit;
+
     background-color: #e9f7ef; /* Легкий зеленый цвет для задач */
     color: #333;
     border: none;
@@ -42,9 +49,12 @@ body {
 }
 
 .delete-btn {
+    display: block;
     background-color: #e74c3c; /* Красный цвет для кнопки удаления */
     color: white;
     border: none;
+
+    margin: 0 auto;
 }
 
 .delete-btn:hover {
@@ -142,3 +152,54 @@ body {
     margin: 10px 0;
 }
 
+/* Task */
+
+.task-title {
+    text-align: center;
+
+    font-size: 20px;
+
+    border-bottom: 1px solid #2ecc71;
+}
+
+.task-description {
+    margin: 10px;
+}
+
+#taskDescriptionInput {
+    height: 80px; /* Устанавливаем высоту для поля описания задачи */
+    resize: none; /* Отключаем возможность изменения размера поля */
+}
+
+
+/* Checkbox */
+
+/* Скрываем стандартный чекбокс */
+.custom-checkbox {
+    appearance: none; /* Убираем стандартный стиль чекбокса */
+    -webkit-appearance: none; /* Для Safari */
+    width: 20px;
+    height: 20px;
+    border: 2px solid #27ae60; /* Зеленая граница */
+    border-radius: 50%; /* Делает чекбокс круглым */
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Стиль для активного чекбокса (когда он отмечен) */
+.custom-checkbox:checked {
+    background-color: #27ae60; /* Зеленый цвет заливки */
+    border-color: #27ae60; /* Зеленая граница */
+}
+
+/* Галочка внутри круга */
+.custom-checkbox:checked::after {
+    content: '✔'; /* Символ галочки */
+    color: white; /* Цвет галочки */
+    font-size: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
