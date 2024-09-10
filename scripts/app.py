@@ -20,7 +20,7 @@ def check_token(token):
 
 template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
 static_dir   = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static')
-secret_key   = 'adminKeyJWT'
+secret_key   = settings.getSetting("secret_key_jwt")
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 CORS(app, supports_credentials=True)
