@@ -28,8 +28,8 @@
                         <a class="header__navs__item" id="logoutBtn">Выход</a>
                     {% else %}
                         <!-- Пользователь не вошел в систему -->
-                        <a href="/login" class="header__navs__item">Вход</a>
-                        <a href="/register" class="header__navs__item">Регистрация</a>
+                        <a href="/auth/login" class="header__navs__item">Вход</a>
+                        <a href="/auth/register" class="header__navs__item">Регистрация</a>
                     {% endif %}
                 </div>
 
@@ -55,12 +55,15 @@
                 <form id="todoForm" class="justify-content-center" method="post" action="/addDo" content="application/json">
                     <div class="d-flex align-items-center mb-2">
                         <!-- Название задачи и кнопка "Добавить" в одной строке -->
-                        <input type="text" id="taskTitleInput" class="form-control mr-2" placeholder="Название задачи..." required>
-                        <button type="submit" class="btn add-btn">Добавить</button>
+                        {{ form.title(class="form-control mr-2", id="taskTitleInput", placeholder="Название задачи...", required=True) }}
+<!--                        <input type="text" id="taskTitleInput" class="form-control mr-2" placeholder="Название задачи..." required>-->
+                        {{ form.submit(class="btn add-btn") }}
+<!--                        <button type="submit" class="btn add-btn">Добавить</button>-->
                     </div>
                     <!-- Описание задачи ниже и с большей высотой -->
                     <div>
-                        <input type="text" id="taskDescriptionInput" class="form-control mb-2" placeholder="Описание задачи..." required>
+                        {{ form.description(class="form-control mb-2", id="taskDescriptionInput", placeholder="Описание задачи...", required=True) }}
+<!--                        <input type="text" id="taskDescriptionInput" class="form-control mb-2" placeholder="Описание задачи..." required>-->
                     </div>
                 </form>
                 <ul id="taskList" class="list-group mt-4">

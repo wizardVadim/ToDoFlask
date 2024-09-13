@@ -33,6 +33,9 @@ def create_app():
     app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
     app.config['JWT_ERROR_MESSAGE_KEY'] = 'message'
 
+    # WTF Config
+    app.config['WTF_CSRF_ENABLED'] = False
+
     logging.basicConfig(level=logging.DEBUG)
 
     # Инициализация объекта SQLAlchemy

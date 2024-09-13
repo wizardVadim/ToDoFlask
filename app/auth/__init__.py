@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError
 from app.models import User, db
 from app.__init__ import BLACKLIST_JWT
+from .forms import RegistrationForm, LoginForm
 
 
 auth = Blueprint('auth', __name__, template_folder='templates')
@@ -22,6 +23,23 @@ def register():
         else:
             # Если запрос содержит данные формы
             data = request.form
+
+        # Получение экземпляра формы
+        form = RegistrationForm(data=data)
+
+        # Проверка валидации
+        if form.validate():
+
+            # Выводим ошибки валидации если они есть
+            error_string = ''
+
+            for field, errors in form.errors.items():
+                for current_error in errors:
+                    if error_string != '':
+                        error_string += '\n'
+                    error_string += f'{current_error}'
+
+            return make_response(jsonify({'message': error_string}), 400)
 
         username = data.get('username')
         password = data.get('password')
@@ -54,12 +72,16 @@ def register():
         response = make_response(jsonify({"message": "Пользователь успешно зарегистрирован"}), 201)
         return response
 
-    return render_template('register.html', is_authenticated=is_authenticated)
+    # Выведем для Get запроса страницу
+    form = RegistrationForm()
+
+    return render_template('register.html', form=form, is_authenticated=is_authenticated)
 
 # Маршрут для входа
 @auth.route('/login', methods=['POST', 'GET'])
 @jwt_required(optional=True)
 def login():
+
     current_user = get_jwt_identity()
     is_authenticated = current_user is not None
 
@@ -68,6 +90,20 @@ def login():
             data = request.get_json()
         else:
             data = request.form
+
+        form = LoginForm(data=data)
+
+        if not form.validate():
+            # Выводим ошибки валидации если они есть
+            error_string = ''
+
+            for field, errors in form.errors.items():
+                for current_error in errors:
+                    if error_string != '':
+                        error_string += '\n'
+                    error_string += f'{current_error}'
+
+            return make_response(jsonify({'message': error_string}), 400)
 
         username = data.get('username')
         password = data.get('password')
@@ -99,7 +135,9 @@ def login():
 
         return response
 
-    return render_template('login.html', is_authenticated=is_authenticated)
+    form = LoginForm()
+
+    return render_template('login.html', form=form, is_authenticated=is_authenticated)
 
 # Маршрут для выхода (удаление cookie с токеном)
 @auth.route('/logout', methods=['GET', 'POST'])

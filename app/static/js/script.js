@@ -18,8 +18,8 @@ form.addEventListener('submit', function (e) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ // Преобразуем в строку JSON
-                'task_title': taskTitle,
-                'task_description': taskDescription
+                'title': taskTitle,
+                'description': taskDescription
             })
         })
         .then(response => {

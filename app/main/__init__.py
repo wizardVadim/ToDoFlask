@@ -23,6 +23,9 @@ def index():
     tasks_data = [{"id": task.id, "title": task.title, "description": task.description, "completed": task.completed} for
                   task in tasks]
 
+    # Создаем экземпляр формы
+    form = TaskForm()
+
     # Отладка
     for task in tasks:
         print(task.id)
@@ -31,4 +34,4 @@ def index():
         else:
             print('not comp')
 
-    return render_template('index.html', username=str(current_user.get('username')), is_authenticated=is_authenticated, tasks=tasks_data)
+    return render_template('index.html', form=form, username=str(current_user.get('username')), is_authenticated=is_authenticated, tasks=tasks_data)

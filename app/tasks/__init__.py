@@ -1,7 +1,11 @@
+from http.client import error
+
 from flask import Blueprint, request, jsonify, make_response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models  import Task, User, db
 from datetime import timezone, datetime
+
+from app.tasks.forms import TaskForm
 
 tasks = Blueprint('tasks', __name__, template_folder='templates')
 
@@ -49,20 +53,7 @@ def add_task():
     else:
         data = request.form
 
-    task_title = data.get('task_title')
-    task_description = data.get('task_description')
-
-    if len(task_title) > 50:
-        return make_response(jsonify({'message': 'Название заголовка должно быть не более 50 символов'}), 400)
-
-    if len(task_description) > 2048:
-        return make_response(jsonify({'message': 'Описание должно быть не более 2048 символов'}), 400)
-
-    print(task_title + ' ' + task_description + ' - Данные задачи')
-
-    # Проверка наличия данных
-    if not task_title or not task_description:
-        return make_response(jsonify({'message': 'Отсутствуют данные по задаче'}), 400)
+    print(data)
 
     # Найти пользователя по его имени
     user = User.query.filter_by(username=current_user.get('username')).first()
@@ -71,17 +62,35 @@ def add_task():
     if not user:
         return make_response(jsonify({'message': 'Не найден текущий пользователь'}), 500)
 
-    new_task = Task(user_id=user.id, title=task_title, description=task_description)
+    # Получение формы валидации
+    form = TaskForm(data=data)
 
-    try:
-        db.session.add(new_task)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        print(e)
-        return make_response(jsonify({'message': 'Произошла ошибка при добавлении в базу данных'}), 500)
+    if form.validate():
 
-    return make_response(jsonify({'message': 'Добавление прошло успешно', 'id': new_task.id}), 200)
+        new_task = Task(user_id=user.id, title=form.title.data, description=form.description.data)
+
+        try:
+            db.session.add(new_task)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(e)
+            return make_response(jsonify({'message': 'Произошла ошибка при добавлении в базу данных'}), 500)
+
+        return make_response(jsonify({'message': 'Добавление прошло успешно', 'id': new_task.id}), 200)
+
+    # Выводим ошибки валидации если они есть
+    error_string = ''
+
+    for field, errors in form.errors.items():
+        for current_error in errors:
+            if error_string != '':
+                error_string += '\n'
+            error_string += f'{current_error}'
+
+    return make_response(jsonify({'message': error_string}), 400)
+
+
 
 # Маршрут для выполнения задачи
 @tasks.route('/complete_task', methods=['POST'])
