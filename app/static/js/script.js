@@ -11,7 +11,7 @@ form.addEventListener('submit', function (e) {
     const taskDescription = taskDescriptionInput.value;
 
     if (taskTitle.trim()) {
-        fetch('/add_task', {
+        fetch('/tasks/add_task', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -96,7 +96,7 @@ function addEventListenerRemoveForTask(task) {
         deleteButton.addEventListener('click', function () {
             const taskId = task.id.replace('task-', ''); // Получаем id задачи, убираем префикс
 
-            fetch('/remove_task', {
+            fetch('/tasks/remove_task', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -135,7 +135,7 @@ function addEventListenerCompleteForTask(task) {
             const taskId = task.id.replace('task-', ''); // Получаем id задачи, убираем префикс
             const checked = this.checked;
 
-            fetch('/complete_task', {
+            fetch('/tasks/complete_task', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {

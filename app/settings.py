@@ -10,5 +10,5 @@ def getSettings():
 def getSetting(settingsName):
     return settings[settingsName]
 
-rootPath = Path(__file__).resolve().parents[1]
+rootPath = Path(__file__).resolve().parents[0]
 settings = parseSettingsJSON(rootPath)

@@ -4,7 +4,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     const username = document.getElementById('username').value; // Извлекаем значение поля ввода
     const password = document.getElementById('password').value;
 
-    fetch('/login', {
+    fetch('/auth/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -21,7 +21,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     .then(({ status, body }) => {
         if (status === 200) {
             // Успешный вход - перенаправление на другую страницу
-            window.location.href = '/';
+            window.location.href = '/main';
         } else {
             // Ошибка - вывод сообщения пользователю
             document.getElementById('message').innerText = body.message;

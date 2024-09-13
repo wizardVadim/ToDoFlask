@@ -5,7 +5,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
     const password = document.getElementById('password').value;
     const email = document.getElementById('email').value;
 
-    fetch('/register', {
+    fetch('/auth/register', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -23,7 +23,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
     .then(({ status, body }) => {
         if (status === 201) {
             // Успешная регистрация - перенаправление на страницу входа
-            window.location.href = '/login';
+            window.location.href = '/auth/login';
         } else {
             // Обработка ошибки - вывод сообщения пользователю
             document.getElementById('message').innerText = body.message;
