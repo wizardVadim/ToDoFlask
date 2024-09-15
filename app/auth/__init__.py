@@ -1,11 +1,11 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, make_response
+from flask import Blueprint, render_template, request, jsonify, make_response
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError
-from app.models import User, db
 from app.__init__ import BLACKLIST_JWT
 from .forms import RegistrationForm, LoginForm
-
+import app.services.UserService
+from ..services.UserService import UserService
 
 auth = Blueprint('auth', __name__, template_folder='templates')
 
@@ -17,6 +17,7 @@ def register():
     is_authenticated = current_user is not None
 
     if request.method == 'POST':
+
         if request.content_type == 'application/json':
             # Если запрос содержит JSON-данные
             data = request.get_json()
@@ -28,7 +29,7 @@ def register():
         form = RegistrationForm(data=data)
 
         # Проверка валидации
-        if form.validate():
+        if not form.validate():
 
             # Выводим ошибки валидации если они есть
             error_string = ''
@@ -41,36 +42,16 @@ def register():
 
             return make_response(jsonify({'message': error_string}), 400)
 
-        username = data.get('username')
-        password = data.get('password')
-        email    = data.get('email')
-
-        print(str(type(username)) + str(type(password)))
-
-        if User.query.filter_by(username=username).first():
-            response = make_response(jsonify({"message": "Пользователь с таким именем уже существует"}), 409)
-            return response
-
-        if User.query.filter_by(email=email).first():
-            response = make_response(jsonify({"message": "Пользователь с таким E-mail уже существует"}), 409)
-            return response
-
         # Хеширование пароля
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-        new_user = User(username=username, password=hashed_password, email=email)
+        hashed_password = generate_password_hash(form.password.data, method='pbkdf2:sha256')
 
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-        except IntegrityError as e:
-            db.session.rollback()
-            # Печать информации об ошибке для отладки
-            print(str(e.orig))  # Выводит оригинальное сообщение об ошибке от psycopg2
-            response = make_response(jsonify({"message": "Ошибка вставки данных в базу данных.", "error": str(e)}), 500)
-            return response
+        # Используем сервис для добавления в базу данных
+        success, error_message = UserService.add_user(form.username.data, form.email.data, hashed_password)
 
-        response = make_response(jsonify({"message": "Пользователь успешно зарегистрирован"}), 201)
-        return response
+        if not success:
+            return make_response(jsonify({'message': error_message}), 409)
+
+        return make_response(jsonify({'message': 'Пользователь успешно зарегистрирован'}), 201)
 
     # Выведем для Get запроса страницу
     form = RegistrationForm()
@@ -105,20 +86,19 @@ def login():
 
             return make_response(jsonify({'message': error_string}), 400)
 
-        username = data.get('username')
-        password = data.get('password')
-
         # Проверка наличия данных
-        if not username or not password:
+        if not form.username.data or not form.password.data:
             return make_response(jsonify({'message': 'Отсутствует имя пользователя или пароль'}), 400)
 
-        user = User.query.filter_by(username=username).first()
+        user = UserService.get_user(form.username.data)
 
-        if not user or not check_password_hash(user.password, password):
+        print(user)
+
+        if not user or not check_password_hash(UserService.get_users_parameter(user, 'password'), form.password.data):
             return make_response(jsonify({"message": "Неправильное имя пользователя или пароль"}), 401)
 
         # Создание JWT токена
-        access_token = create_access_token(identity={'username': user.username})
+        access_token = create_access_token(identity={'username': UserService.get_users_parameter(user, 'username')})
         response = make_response(jsonify({"message": "Пользователь успешно вошел"}), 200)
 
         # Установите новый токен в куки

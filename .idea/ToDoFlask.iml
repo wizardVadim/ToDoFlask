@@ -11,6 +11,7 @@
     <option name="namespacePackageFolders">
       <list>
         <option value="$MODULE_DIR$/app/main" />
+        <option value="$MODULE_DIR$/app/models" />
       </list>
     </option>
   </component>
