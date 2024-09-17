@@ -3,7 +3,7 @@ from sqlalchemy.sql import text
 
 # Поиск задач по идентификатору пользователя
 def getTasksByUserId(user_id):
-    result = db.session.execute(text("SELECT * FROM tasks WHERE user_id = :user_id"), {'user_id': user_id})
+    result = db.session.execute(text("SELECT * FROM tasks WHERE user_id = :user_id ORDER BY id"), {'user_id': user_id})
     return result.fetchall()
 
 # Найти задачу по идентификатору
